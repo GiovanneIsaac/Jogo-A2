@@ -1,4 +1,6 @@
-import sprites as spr
+# ARQUIVO PARA DEFINIR CONSTANTES
+
+import assets as spr
 
 # PROPRIEDADES DA TELA
 ALTURA = 640
