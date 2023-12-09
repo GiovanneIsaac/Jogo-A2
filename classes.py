@@ -10,7 +10,12 @@ import assets
 pygame.init()
 
 class Fundo(pygame.sprite.Sprite):
-    """Classe para imagens de fundo de cenário"""
+    """
+    Classe que recebe uma sprite como argumento e usa ela como imagem de fundo do cenário
+
+    Args:
+        sprite : imagem a ser usada como fundo no cenário
+    """
     def __init__(self, sprite):
         super().__init__()
 
