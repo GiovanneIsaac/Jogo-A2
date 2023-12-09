@@ -6,4 +6,4 @@ import sprites as spr
 
 
 class Game():
-    
+    pass
