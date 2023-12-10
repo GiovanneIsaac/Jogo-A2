@@ -91,3 +91,25 @@ class Plataforma(pygame.sprite.Sprite):
             self.rect.x -= 5
             for rect in self.grupo_rect:
                 rect.x -= 5
+
+class Fruta(pygame.sprite.Sprite):
+    """
+    Classe para criação de uma fruta coletável
+    """
+
+    def __init__(self):
+        super().__init__()
+
+        self.image = assets.fruta
+        self.mask = pygame.mask.from_surface(self.image)
+
+        self.rect = self.image.get_rect()
+        self.x = randint(40, 600)
+        self.y = randint(50, 430)
+        self.rect.center = (self.x, self.y)
+
+    def update(self):
+        """Atualiza a posição da fruta"""
+        self.x = randint(40, 600)
+        self.y = randint(50, 430)
+        self.rect.center = (self.x, self.y)
