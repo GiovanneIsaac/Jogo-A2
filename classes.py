@@ -9,6 +9,8 @@ import assets
 
 pygame.init()
 
+# CLASSES
+
 class Fundo(pygame.sprite.Sprite):
     """
     Classe que recebe uma sprite como argumento e usa ela como imagem de fundo do cenário
@@ -159,4 +161,28 @@ class Jogador(pygame.sprite.Sprite):
         # Gravidade
         self.velocidade_y += 1
         self.rect.y += self.velocidade_y
+
+# FUNÇÕES
+
+def jogador_em_plataforma(jogador, plataformas):
+    """
+    Recebe um objeto da classe Jogador e um grupo de Plataformas
+    e verifica se o jogador colidiu com alguma das plataformas,
+    caso tenha colidido, a posição desse é atualizada.
+    """
+
+    # Verificando se o jogador colidiu com alguma plataforma do grupo "plataformas"
+    plataformas_colisao = pygame.sprite.spritecollide(jogador, plataformas, False)
+
+    for plataforma in plataformas_colisao:
+        if jogador.velocidade_y > 0:
+            # Se o jogador está caindo (velocidade_y > 0) e colide com uma plataforma, ele fica em cima dela
+            jogador.rect.bottom = plataforma.rect.top
+            jogador.velocidade_y = 0
+            jogador.pulo = False
+            
+        elif jogador.velocidade_y < 0:
+            # Se o jogador está caindo (velocidade_y < 0) e colide com uma plataforma, ele bate nela e para de subir
+            jogador.rect.top = plataforma.rect.bottom
+            jogador.velocidade_y = 0
 
