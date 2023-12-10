@@ -1,4 +1,3 @@
-# ARQUIVO PARA CONSTRUÇÃO DAS CLASSES
 import pygame
 from pygame.locals import *
 from random import randint, choice
@@ -24,6 +23,20 @@ class Fundo(pygame.sprite.Sprite):
         self.rect.topleft = (0, 0)
 
 
+class Chao(pygame.sprite.Sprite):
+    """Classe que cria uma plataforma no lado inferior da tela"""
+
+    def __init__(self):
+        super().__init__()
+
+        self.image = pygame.Surface((c.LARGURA, 1))
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = 0, c.ALTURA + 1
+
+    def reiniciar(self):
+        pass
+
+
 class Plataforma(pygame.sprite.Sprite):
     """
     Classe para criação de uma plataforma
@@ -35,9 +48,10 @@ class Plataforma(pygame.sprite.Sprite):
         movel (bool) : Define se a plataforma será móvel ou não, o padrão é False e esse indica que a plataforma é fixa
     """
 
-    def __init__(self, x, y, indice, movel=False):
+    def __init__(self, y, indice, movel=False):
         super().__init__()
 
+        x = randint(0, 480)
         self.indice = indice
         self.movel = movel
 
@@ -93,6 +107,14 @@ class Plataforma(pygame.sprite.Sprite):
             for rect in self.grupo_rect:
                 rect.x -= 5
 
+    def reiniciar(self):
+        x = randint(0, 480)
+
+        for i, rect in enumerate(self.grupo_rect):
+            rect.x = x + i * rect.width
+
+        self.rect.x = x
+
 
 class Fruta(pygame.sprite.Sprite):
     """
@@ -107,17 +129,16 @@ class Fruta(pygame.sprite.Sprite):
 
         # Posicionamento da Fruta
         self.rect = self.image.get_rect()
-        self.x = randint(40, 600)
-        self.y = randint(50, 430)
-        self.rect.center = (self.x, self.y)
+        self.rect.x = randint(40, 600)
+        self.rect.y = randint(40, 600)
 
     def update(self):
         """Atualiza a posição da fruta"""
-        self.x = randint(40, 600)
-        self.y = randint(50, 430)
-        self.rect.center = (self.x, self.y)
+        self.rect.x = randint(40, 600)
+        self.rect.y = randint(40, 600)
 
-    # CRIAR MAIS COLETÁVEIS!!!
+    def reiniciar(self):
+        self.update()
 
 
 class Jogador(pygame.sprite.Sprite):
@@ -132,9 +153,8 @@ class Jogador(pygame.sprite.Sprite):
 
         # Posicionamento do jogador
         self.rect = self.image.get_rect()
-        self.x = c.INITIAL_POS[0]
-        self.y = c.INITIAL_POS[1]
-        self.rect.center = (self.x, self.y)
+        self.rect.x = c.INITIAL_POS[0]
+        self.rect.y = c.INITIAL_POS[1]
 
         self.velocidade_y = 0  # Usado para controlar a queda ou subida do personagem
         self.pulo = False
@@ -164,6 +184,12 @@ class Jogador(pygame.sprite.Sprite):
         # Gravidade
         self.velocidade_y += 1
         self.rect.y += self.velocidade_y
+
+    def reiniciar(self):
+        self.rect.x = c.INITIAL_POS[0]
+        self.rect.y = c.INITIAL_POS[1]
+        self.pontos = 0
+        self.vida = c.VIDA
 
 
 class Inimigo(pygame.sprite.Sprite):
@@ -219,10 +245,10 @@ class Inimigo(pygame.sprite.Sprite):
 
         return sprite
 
-    def reiniciar_posicao(self):
+    def reiniciar(self):
         self.x = 800
         self.y = 800
-        self.rect.center = (self.x, self.y)
+        self.rect = (self.x, self.y)
 
     def update(self):
         """Método responsável por atualizar a localização do inimigo"""
@@ -303,3 +329,16 @@ def jogador_em_plataforma(jogador, plataformas):
             # Se o jogador está caindo (velocidade_y < 0) e colide com uma plataforma, ele bate nela e para de subir
             jogador.rect.top = plataforma.rect.bottom
             jogador.velocidade_y = 0
+
+
+def reiniciar_jogo(jogador, inimigos, plataformas, frutas):
+    jogador.reiniciar()
+
+    for inimigo in inimigos:
+        inimigo.reiniciar()
+
+    for plataforma in plataformas:
+        plataforma.reiniciar()
+
+    for fruta in frutas:
+        fruta.reiniciar()
