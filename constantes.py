@@ -1,6 +1,4 @@
-# ARQUIVO PARA DEFINIR CONSTANTES
-
-import assets as spr
+import assets
 
 # PROPRIEDADES DA TELA
 ALTURA = 640
@@ -17,7 +15,7 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 
 # PROPRIEDADES DA TELA
-INITIAL_POS = [LARGURA//2, ALTURA - spr.jogador.get_width()//2]
+INITIAL_POS = [LARGURA//2, ALTURA - assets.jogador.get_width()//2]
 VIDA = 3
 
 MOVIMENTO = 10
@@ -25,3 +23,9 @@ PULO = 20
 
 # FONTE
 FONTE = 'arial'
+
+# TAMANHO SPRITES
+tam_fundo = 640
+Tam_jogador = 64
+Tam_inimigo = 32
+tam_fruta = 64
