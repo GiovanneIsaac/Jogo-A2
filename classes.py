@@ -1,16 +1,15 @@
 # ARQUIVO PARA CONSTRUÇÃO DAS CLASSES
-
 import pygame
 from pygame.locals import *
 from random import randint, choice
 
-import constantes as const
+import constantes as c
 import assets
 
 pygame.init()
 
-# CLASSES
 
+# CLASSES
 class Fundo(pygame.sprite.Sprite):
     """
     Classe que recebe uma sprite como argumento e usa ela como imagem de fundo do cenário
@@ -18,14 +17,14 @@ class Fundo(pygame.sprite.Sprite):
 
     def __init__(self, sprite):
         super().__init__()
-        # Posicionamento do jogador
+
         self.image = sprite
+
         self.rect = self.image.get_rect()
         self.rect.topleft = (0, 0)
 
 
 class Plataforma(pygame.sprite.Sprite):
-
     """
     Classe para criação de uma plataforma
 
@@ -42,12 +41,12 @@ class Plataforma(pygame.sprite.Sprite):
         self.indice = indice
         self.movel = movel
 
-        # Criando e grupos com com as sprites que serão usadas para formar a plataforma
+        # Criando grupos com as sprites e que serão usadas para formar a plataforma
         self.grupo_sprites = [assets.plataforma] * self.indice
         self.grupo_rect = []
         for sprite in self.grupo_sprites:
             self.grupo_rect.append(sprite.get_rect())
-        # Posicionando essas sprites
+        # Posicionando as sprites
         for i, rect in enumerate(self.grupo_rect):
             rect.x = x + i * rect.width
             rect.y = y
@@ -59,9 +58,9 @@ class Plataforma(pygame.sprite.Sprite):
 
         # Escolhendo para qual sentido a plataforma se moverá
         self.sentido = choice(["ESQUERDA", "DIREITA"])
-    
+
     def update(self, tela):
-        """Movimenta e reposiciona a plataforma"""
+        """Movimenta e posiciona a plataforma na tela que recebe como argumento"""
         if self.movel:
             self.__movimentar()
             for rect in self.grupo_rect:
@@ -81,7 +80,7 @@ class Plataforma(pygame.sprite.Sprite):
         # Caso a plataforma bata em uma das laterais da tela, ela muda o sentido de movimento
         if self.rect.left <= 0:
             self.sentido = "DIREITA"
-        elif self.rect.right >= const.LARGURA:
+        elif self.rect.right >= c.LARGURA:
             self.sentido = "ESQUERDA"
 
         # Atualizando a posição da plataforma
@@ -118,11 +117,13 @@ class Fruta(pygame.sprite.Sprite):
         self.y = randint(50, 430)
         self.rect.center = (self.x, self.y)
 
+    # CRIAR MAIS COLETÁVEIS!!!
+
 
 class Jogador(pygame.sprite.Sprite):
-    def __init__(self, nome):
+    def __init__(self):
         super().__init__()
-        self.vida = const.VIDA
+        self.vida = c.VIDA
         self.pontos = 0
 
         # Sprite e colisão do jogador
@@ -131,39 +132,156 @@ class Jogador(pygame.sprite.Sprite):
 
         # Posicionamento do jogador
         self.rect = self.image.get_rect()
-        self.x = const.INITIAL_POS[0]
-        self.y = const.INITIAL_POS[1]
+        self.x = c.INITIAL_POS[0]
+        self.y = c.INITIAL_POS[1]
         self.rect.center = (self.x, self.y)
 
         self.velocidade_y = 0  # Usado para controlar a queda ou subida do personagem
         self.pulo = False
 
     def update(self):
+        """Movimenta o jogador"""
+
         teclas = pygame.key.get_pressed()
 
         # Andando direita ou esquerda
         if teclas[K_RIGHT] or teclas[K_d]:
-            self.rect.x += const.MOVIMENTO
+            self.rect.x += c.MOVIMENTO
         elif teclas[K_LEFT] or teclas[K_a]:
-            self.rect.x -= const.MOVIMENTO
+            self.rect.x -= c.MOVIMENTO
 
         # Caso o jogador saia do limite lateral da tela, ele é movido para o outro lado
-        if self.rect.x > const.LARGURA - 4:
+        if self.rect.x > c.LARGURA - 4:
             self.rect.x = -60
         elif self.rect.x < -60:
-            self.rect.x = const.LARGURA - 4
+            self.rect.x = c.LARGURA - 4
 
         # Lógica de pulo
         if (teclas[K_w] or teclas[K_UP]) and not self.pulo:
-            self.velocidade_y += -const.PULO
+            self.velocidade_y += -c.PULO
             self.pulo = True
 
         # Gravidade
         self.velocidade_y += 1
         self.rect.y += self.velocidade_y
 
-# FUNÇÕES
 
+class Inimigo(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+
+        # Definindo a direção e o sentido para onde o inimigo se moverá
+        self.direcao, self.sentido = self.set_direcao_e_sentido()
+
+        # Definindo a imagem do inimigo
+        self.image = self.set_sprite()
+
+        # Criando máscara de colisão do inimigo
+        self.mask = pygame.mask.from_surface(self.image)
+
+        self.rect = self.image.get_rect()
+        self.x = 800
+        self.y = 800
+        self.rect = (self.x, self.y)
+
+    @staticmethod
+    def set_direcao_e_sentido():
+        """
+        Método usado para definir de modo aleatório o sentido e a
+        direção de um objeto da classe Inimigo.
+        :return: Tupla contendo dois inteiros que podem ser 0 ou 1
+        """
+
+        direcao = randint(0, 1)
+        sentido = randint(0, 1)
+
+        return direcao, sentido
+
+    def set_sprite(self):
+        """
+        Método que retorna a sprite do inimigo de acordo com
+        a direção e com o sentido para o qual ele se move
+        """
+
+        if self.direcao == 0:
+            if self.sentido == 0:
+                sprite = assets.inimigo_R
+
+            else:
+                sprite = assets.inimigo_L
+
+        else:
+            if self.sentido == 0:
+                sprite = assets.inimigo_U
+
+            else:
+                sprite = assets.inimigo_D
+
+        return sprite
+
+    def reiniciar_posicao(self):
+        self.x = 800
+        self.y = 800
+        self.rect.center = (self.x, self.y)
+
+    def update(self):
+        """Método responsável por atualizar a localização do inimigo"""
+        if self.direcao == 0:
+            self.__movimentacao_horizontal()
+
+        else:
+            self.__movimentacao_vertical()
+
+    def __movimentacao_horizontal(self):
+        # MOVIMENTANDO HORIZONTALMENTE ATRAVÉS DA TELA
+        if self.sentido == 0:
+            self.x += c.MOVIMENTO
+        else:
+            self.x -= c.MOVIMENTO
+
+        self.rect = (self.x, self.y)
+
+        # SAINDO DOS LIMITES DA TELA
+        if self.x > c.LARGURA - 4:
+            self.y = randint(0, c.tam_fundo - c.Tam_inimigo)
+            self.x = -28
+
+            self.direcao, self.sentido = self.set_direcao_e_sentido()
+            self.image = self.set_sprite()
+
+        elif self.x < -28:
+            self.y = randint(10, c.tam_fundo - c.Tam_inimigo)
+            self.x = c.LARGURA - 4
+
+            self.direcao, self.sentido = self.set_direcao_e_sentido()
+            self.image = self.set_sprite()
+
+    def __movimentacao_vertical(self):
+        # MOVIMENTANDO VERTICALMENTE ATRAVÉS DA TELA
+        if self.sentido == 0:
+            self.y -= c.MOVIMENTO
+        else:
+            self.y += c.MOVIMENTO
+
+        self.rect = (self.x, self.y)
+
+        # SAINDO DOS LIMITES DA TELA
+        if self.y > c.ALTURA - 4:
+            self.x = randint(0, c.tam_fundo - c.Tam_inimigo)
+            self.y = -28
+
+            self.direcao, self.sentido = self.set_direcao_e_sentido()
+            self.image = self.set_sprite()
+
+        elif self.y < -28:
+            self.x = randint(0, c.tam_fundo - c.Tam_inimigo)
+            self.y = c.ALTURA - 4
+
+            self.direcao, self.sentido = self.set_direcao_e_sentido()
+            self.image = self.set_sprite()
+
+
+# FUNÇÕES
 def jogador_em_plataforma(jogador, plataformas):
     """
     Recebe um objeto da classe Jogador e um grupo de Plataformas
@@ -180,9 +298,8 @@ def jogador_em_plataforma(jogador, plataformas):
             jogador.rect.bottom = plataforma.rect.top
             jogador.velocidade_y = 0
             jogador.pulo = False
-            
+
         elif jogador.velocidade_y < 0:
             # Se o jogador está caindo (velocidade_y < 0) e colide com uma plataforma, ele bate nela e para de subir
             jogador.rect.top = plataforma.rect.bottom
             jogador.velocidade_y = 0
-
