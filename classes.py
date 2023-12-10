@@ -12,16 +12,15 @@ pygame.init()
 class Fundo(pygame.sprite.Sprite):
     """
     Classe que recebe uma sprite como argumento e usa ela como imagem de fundo do cenário
-
-    Args:
-        sprite : imagem a ser usada como fundo no cenário
     """
+
     def __init__(self, sprite):
         super().__init__()
 
         self.image = sprite
         self.rect = self.image.get_rect()
         self.rect.topleft = (0, 0)
+
 
 class Plataforma(pygame.sprite.Sprite):
 
@@ -41,23 +40,54 @@ class Plataforma(pygame.sprite.Sprite):
         self.indice = indice
         self.movel = movel
 
+        # Criando e grupos com com as sprites que serão usadas para formar a plataforma
         self.grupo_sprites = [assets.plataforma] * self.indice
         self.grupo_rect = []
-
         for sprite in self.grupo_sprites:
             self.grupo_rect.append(sprite.get_rect())
+        # Posicionando essas sprites
+        for i, rect in enumerate(self.grupo_rect):
+            rect.x = x + i * rect.width
+            rect.y = y
 
+        # Criando e posicionando o retângulo que será usado como área de colisão da plataforma
         self.image = pygame.Surface((self.indice * 16, 16))
-
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = x, y
 
+        # Escolhendo para qual sentido a plataforma se moverá
         self.sentido = choice(["ESQUERDA", "DIREITA"])
+    
+    def update(self, tela):
+        """Movimenta e reposiciona a plataforma"""
+        if self.movel:
+            self.__movimentar()
+            for rect in self.grupo_rect:
+                self.__desenhar_sprites(tela)
+        else:
+            pass
 
-        for i in range(self.indice):
-            if i == 0:
-                self.grupo_rect[i].x = x
-            else:
-                self.grupo_rect[i].x = x + i * self.grupo_sprites[i].get_width()
-            self.grupo_rect[i].y = y
-            i += 1
+    def __desenhar_sprites(self, tela):
+        """Insere na tela as sprites que formam a plataforma"""
+
+        for pos in range(self.indice):
+            tela.blit(self.grupo_sprites[pos], self.grupo_rect[pos])
+
+    def __movimentar(self):
+        """Atualiza a posição da plataforma"""
+
+        # Caso a plataforma bata em uma das laterais da tela, ela muda o sentido de movimento
+        if self.rect.left <= 0:
+            self.sentido = "DIREITA"
+        elif self.rect.right >= const.LARGURA:
+            self.sentido = "ESQUERDA"
+
+        # Atualizando a posição da plataforma
+        if self.sentido == "DIREITA":
+            self.rect.x += 5
+            for rect in self.grupo_rect:
+                rect.x += 5
+        elif self.sentido == "ESQUERDA":
+            self.rect.x -= 5
+            for rect in self.grupo_rect:
+                rect.x -= 5
