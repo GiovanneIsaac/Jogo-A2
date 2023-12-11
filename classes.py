@@ -7,7 +7,6 @@ import assets
 
 pygame.init()
 
-
 # CLASSES
 class Fundo(pygame.sprite.Sprite):
     """
@@ -160,14 +159,14 @@ class Jogador(pygame.sprite.Sprite):
         self.pulo = False
 
     def update(self):
-        """Movimenta o jogador"""
+        """Método de movimentação o jogador"""
 
         teclas = pygame.key.get_pressed()
 
-        # Andando direita ou esquerda
-        if teclas[K_RIGHT] or teclas[K_d]:
+        # ANDANDO PARA DIREITA OU ESQUERDA
+        if (teclas[K_d] or teclas[K_RIGHT]) or teclas[K_d]:
             self.rect.x += c.MOVIMENTO
-        elif teclas[K_LEFT] or teclas[K_a]:
+        elif (teclas[K_a] or teclas[K_LEFT]) or teclas[K_a]:
             self.rect.x -= c.MOVIMENTO
 
         # Caso o jogador saia do limite lateral da tela, ele é movido para o outro lado
@@ -176,12 +175,12 @@ class Jogador(pygame.sprite.Sprite):
         elif self.rect.x < -60:
             self.rect.x = c.LARGURA - 4
 
-        # Lógica de pulo
+        # LÓGICA DE PULO
         if (teclas[K_w] or teclas[K_UP]) and not self.pulo:
             self.velocidade_y += -c.PULO
             self.pulo = True
 
-        # Gravidade
+        # GRAVIDADE
         self.velocidade_y += 1
         self.rect.y += self.velocidade_y
 
@@ -196,22 +195,23 @@ class Inimigo(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
 
-        # Definindo a direção e o sentido para onde o inimigo se moverá
-        self.direcao, self.sentido = self.set_direcao_e_sentido()
+        # Definindo a direção e o sentido para onde o inimigo se moverá:
+        # Direção definirá se o inimigo se move horizontalmente ou verticalmente e
+        # sentido defenirá para qual lado ( Direita ou esquerda / Para cima ou para baixo)
+        self.direcao, self.sentido = self.__set_direcao_e_sentido()
 
         # Definindo a imagem do inimigo
-        self.image = self.set_sprite()
+        self.image = self.__set_sprite()
 
         # Criando máscara de colisão do inimigo
         self.mask = pygame.mask.from_surface(self.image)
 
         self.rect = self.image.get_rect()
-        self.x = 800
-        self.y = 800
-        self.rect = (self.x, self.y)
+        self.rect.x = 800
+        self.rect.y = 800
 
     @staticmethod
-    def set_direcao_e_sentido():
+    def __set_direcao_e_sentido():
         """
         Método usado para definir de modo aleatório o sentido e a
         direção de um objeto da classe Inimigo.
@@ -223,7 +223,7 @@ class Inimigo(pygame.sprite.Sprite):
 
         return direcao, sentido
 
-    def set_sprite(self):
+    def __set_sprite(self):
         """
         Método que retorna a sprite do inimigo de acordo com
         a direção e com o sentido para o qual ele se move
@@ -245,13 +245,9 @@ class Inimigo(pygame.sprite.Sprite):
 
         return sprite
 
-    def reiniciar(self):
-        self.x = 800
-        self.y = 800
-        self.rect = (self.x, self.y)
-
     def update(self):
         """Método responsável por atualizar a localização do inimigo"""
+
         if self.direcao == 0:
             self.__movimentacao_horizontal()
 
@@ -259,52 +255,52 @@ class Inimigo(pygame.sprite.Sprite):
             self.__movimentacao_vertical()
 
     def __movimentacao_horizontal(self):
+        """Lógica de movimentação caso o inimigo esteja se movendo verticalmente"""
+
         # MOVIMENTANDO HORIZONTALMENTE ATRAVÉS DA TELA
         if self.sentido == 0:
-            self.x += c.MOVIMENTO
+            self.rect.x += c.MOVIMENTO
         else:
-            self.x -= c.MOVIMENTO
-
-        self.rect = (self.x, self.y)
+            self.rect.x -= c.MOVIMENTO
 
         # SAINDO DOS LIMITES DA TELA
-        if self.x > c.LARGURA - 4:
-            self.y = randint(0, c.tam_fundo - c.Tam_inimigo)
-            self.x = -28
-
-            self.direcao, self.sentido = self.set_direcao_e_sentido()
-            self.image = self.set_sprite()
-
-        elif self.x < -28:
-            self.y = randint(10, c.tam_fundo - c.Tam_inimigo)
-            self.x = c.LARGURA - 4
-
-            self.direcao, self.sentido = self.set_direcao_e_sentido()
-            self.image = self.set_sprite()
+        if self.rect.x > c.LARGURA or self.rect.x < - c.Tam_inimigo:
+            self.reiniciar_posicao()
 
     def __movimentacao_vertical(self):
+        """Lógica de movimentação caso o inimigo esteja se movendo verticalmente"""
+
         # MOVIMENTANDO VERTICALMENTE ATRAVÉS DA TELA
         if self.sentido == 0:
-            self.y -= c.MOVIMENTO
+            self.rect.y -= c.MOVIMENTO
         else:
-            self.y += c.MOVIMENTO
-
-        self.rect = (self.x, self.y)
+            self.rect.y += c.MOVIMENTO
 
         # SAINDO DOS LIMITES DA TELA
-        if self.y > c.ALTURA - 4:
-            self.x = randint(0, c.tam_fundo - c.Tam_inimigo)
-            self.y = -28
+        if self.rect.y > c.ALTURA or self.rect.y < - c.Tam_inimigo:
+            self.reiniciar_posicao()
 
-            self.direcao, self.sentido = self.set_direcao_e_sentido()
-            self.image = self.set_sprite()
+    def reiniciar_posicao(self):
+        """Aleatoariza a posição do inimigo"""
 
-        elif self.y < -28:
-            self.x = randint(0, c.tam_fundo - c.Tam_inimigo)
-            self.y = c.ALTURA - 4
+        # REDEFININDO A DIREÇÃO, SENTIDO E A IMAGEM DO INIMIGO
+        self.direcao, self.sentido = self.__set_direcao_e_sentido()
+        self.image = self.__set_sprite()
 
-            self.direcao, self.sentido = self.set_direcao_e_sentido()
-            self.image = self.set_sprite()
+        # DEFININDO PARA ONDE O INIMIGO SERÁ MANDADO DE ACORDO COM PARA ONDE ELE ESTÁ SE MOVENDO
+        match (self.direcao, self.sentido):
+            case (0, 0):
+                self.rect.x = 0
+                self.rect.y = randint(0, 640 - 32)
+            case (0, 1):
+                self.rect.x = 640
+                self.rect.y = randint(0, 640 - 32)
+            case (1, 0):
+                self.rect.x = randint(0, 640 - 32)
+                self.rect.y = 640
+            case (1, 1):
+                self.rect.x = randint(0, 640 - 32)
+                self.rect.y = 0
 
 
 # FUNÇÕES
@@ -332,10 +328,20 @@ def jogador_em_plataforma(jogador, plataformas):
 
 
 def reiniciar_jogo(jogador, inimigos, plataformas, frutas):
+    """
+    Função que reinicia o jogo reiniciando os seus componentes
+
+    Args:
+        jogador : Objeto da classe Jogador
+        inimigos : Grupo com objetos da classe Inimigo
+        plataformas : Grupo com objetos da classe Plataforma
+        frutas : Grupo com objetos da classe Frutas
+    """
+
     jogador.reiniciar()
 
     for inimigo in inimigos:
-        inimigo.reiniciar()
+        inimigo.reiniciar_posicao()
 
     for plataforma in plataformas:
         plataforma.reiniciar()
