@@ -150,8 +150,8 @@ class Jogo:
 
         cl.Fundo(ast.tl_final).draw(self.tela)
 
-        self._exibir_texto('- FIM DE JOGO -', 50, con.BLACK, (con.LARGURA // 2, 140))
-        self._exibir_texto('- Precione ESPAÇO para jogar novamente-', 30, con.BLACK, (con.LARGURA // 2, con.ALTURA//2))
+        self._exibir_texto('- FIM DE JOGO -', 50, con.WHITE, (con.LARGURA // 2, 140))
+        self._exibir_texto('- Precione ESPAÇO para jogar novamente-', 30, con.WHITE, (con.LARGURA // 2, con.ALTURA//2))
         self._exibir_texto(f"Pontos : {self.jogador.pontos}", 30, con.BLACK, (con.LARGURA // 2, 500))
         self._exibir_texto(f"Tempo : {self.tempo//30}", 30, con.BLACK, (con.LARGURA // 2, 531))
 
