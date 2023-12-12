@@ -1,3 +1,5 @@
+# ARQUIVO COM CLASSES E FUNÇÕES REFERENTES À ELAS
+
 import pygame
 from pygame.locals import *
 from random import randint, choice
@@ -75,6 +77,7 @@ class Plataforma(pygame.sprite.Sprite):
 
         # Escolhendo para qual sentido a plataforma se moverá
         self.sentido = choice(["ESQUERDA", "DIREITA"])
+        self.velocidade = randint(4, 6)
 
     def update(self, tela):
         """Movimenta e posiciona a plataforma na tela que recebe como argumento"""
@@ -102,13 +105,13 @@ class Plataforma(pygame.sprite.Sprite):
 
         # Atualizando a posição da plataforma
         if self.sentido == "DIREITA":
-            self.rect.x += 5
+            self.rect.x += self.velocidade
             for rect in self.grupo_rect:
-                rect.x += 5
+                rect.x += self.velocidade
         elif self.sentido == "ESQUERDA":
-            self.rect.x -= 5
+            self.rect.x -= self.velocidade
             for rect in self.grupo_rect:
-                rect.x -= 5
+                rect.x -= self.velocidade
 
 
 class Fruta(pygame.sprite.Sprite):
@@ -222,18 +225,14 @@ class Inimigo(pygame.sprite.Sprite):
         a direção e com o sentido para o qual ele se move
         """
 
-        if self.direcao == 0:
-            if self.sentido == 0:
+        match (self.direcao, self.sentido):
+            case (0, 0):
                 sprite = assets.inimigo_R
-
-            else:
+            case (0, 1):
                 sprite = assets.inimigo_L
-
-        else:
-            if self.sentido == 0:
+            case (1, 0):
                 sprite = assets.inimigo_U
-
-            else:
+            case (1, 1):
                 sprite = assets.inimigo_D
 
         return sprite

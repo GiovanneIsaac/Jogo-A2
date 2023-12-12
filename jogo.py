@@ -1,3 +1,5 @@
+# ARQUIVO PARA A CONSTRUÇÃO DO LOOP DO JOGO
+
 import pygame
 from pygame.locals import *
 import constantes as con

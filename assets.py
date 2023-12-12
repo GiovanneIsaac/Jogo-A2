@@ -1,3 +1,5 @@
+# ARQUIVO PARA TRABALHAR AS ASSETS DO JOGO
+
 import pygame
 import os
 
