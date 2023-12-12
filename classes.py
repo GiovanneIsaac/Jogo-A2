@@ -7,7 +7,9 @@ import assets
 
 pygame.init()
 
+
 # CLASSES
+
 class Fundo(pygame.sprite.Sprite):
     """
     Classe que recebe uma sprite como argumento e usa ela como imagem de fundo do cenário
@@ -21,6 +23,9 @@ class Fundo(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = (0, 0)
 
+    def draw(self, tela):
+        tela.blit(self.image, self.rect)
+
 
 class Chao(pygame.sprite.Sprite):
     """Classe que cria uma plataforma no lado inferior da tela"""
@@ -32,7 +37,7 @@ class Chao(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = 0, c.ALTURA + 1
 
-    def reiniciar(self):
+    def draw(self):
         pass
 
 
@@ -41,10 +46,9 @@ class Plataforma(pygame.sprite.Sprite):
     Classe para criação de uma plataforma
 
     Args:
-        x (int) : Posição x do canto superior esquerdo da plataforma
-        y (int) : Posição y do canto superior esquerdo da plataforma
-        indice (int) : Define o tamanho da plataforma, o tamanho será (em pixels) indice * 16
-        movel (bool) : Define se a plataforma será móvel ou não, o padrão é False e esse indica que a plataforma é fixa
+        y (int) : Posição y do canto superior esquerdo da plataforma.
+        indice (int) : Define o tamanho da plataforma, o tamanho será (em pixels) indice * 16.
+        movel (bool) : Define se a plataforma será móvel ou não, o padrão é False e esse indica que a plataforma é fixa.
     """
 
     def __init__(self, y, indice, movel=False):
@@ -106,14 +110,6 @@ class Plataforma(pygame.sprite.Sprite):
             for rect in self.grupo_rect:
                 rect.x -= 5
 
-    def reiniciar(self):
-        x = randint(0, 480)
-
-        for i, rect in enumerate(self.grupo_rect):
-            rect.x = x + i * rect.width
-
-        self.rect.x = x
-
 
 class Fruta(pygame.sprite.Sprite):
     """
@@ -136,8 +132,8 @@ class Fruta(pygame.sprite.Sprite):
         self.rect.x = randint(40, 600)
         self.rect.y = randint(40, 600)
 
-    def reiniciar(self):
-        self.update()
+    def draw(self, tela):
+        tela.blit(self.image, self.rect)
 
 
 class Jogador(pygame.sprite.Sprite):
@@ -159,14 +155,14 @@ class Jogador(pygame.sprite.Sprite):
         self.pulo = False
 
     def update(self):
-        """Método de movimentação o jogador"""
+        """Método de movimentação do jogador"""
 
         teclas = pygame.key.get_pressed()
 
         # ANDANDO PARA DIREITA OU ESQUERDA
-        if (teclas[K_d] or teclas[K_RIGHT]) or teclas[K_d]:
+        if teclas[K_d] or teclas[K_RIGHT]:
             self.rect.x += c.MOVIMENTO
-        elif (teclas[K_a] or teclas[K_LEFT]) or teclas[K_a]:
+        elif teclas[K_a] or teclas[K_LEFT]:
             self.rect.x -= c.MOVIMENTO
 
         # Caso o jogador saia do limite lateral da tela, ele é movido para o outro lado
@@ -184,11 +180,8 @@ class Jogador(pygame.sprite.Sprite):
         self.velocidade_y += 1
         self.rect.y += self.velocidade_y
 
-    def reiniciar(self):
-        self.rect.x = c.INITIAL_POS[0]
-        self.rect.y = c.INITIAL_POS[1]
-        self.pontos = 0
-        self.vida = c.VIDA
+    def draw(self, tela):
+        tela.blit(self.image, self.rect)
 
 
 class Inimigo(pygame.sprite.Sprite):
@@ -264,7 +257,7 @@ class Inimigo(pygame.sprite.Sprite):
             self.rect.x -= c.MOVIMENTO
 
         # SAINDO DOS LIMITES DA TELA
-        if self.rect.x > c.LARGURA or self.rect.x < - c.Tam_inimigo:
+        if self.rect.x > c.LARGURA or self.rect.x < - 32:
             self.reiniciar_posicao()
 
     def __movimentacao_vertical(self):
@@ -277,7 +270,7 @@ class Inimigo(pygame.sprite.Sprite):
             self.rect.y += c.MOVIMENTO
 
         # SAINDO DOS LIMITES DA TELA
-        if self.rect.y > c.ALTURA or self.rect.y < - c.Tam_inimigo:
+        if self.rect.y > c.ALTURA or self.rect.y < - 32:
             self.reiniciar_posicao()
 
     def reiniciar_posicao(self):
@@ -304,6 +297,42 @@ class Inimigo(pygame.sprite.Sprite):
 
 
 # FUNÇÕES
+
+def jogador_coleta(jogador, coletaveis):
+    """
+        Recebe um objeto da classe Jogador e um grupo de Coletáveis
+        (Frutas) e verifica se o jogador colidiu com algum dos coletáveis,
+        caso tenha colidido, a posição do coletável é atualizada.
+    """
+
+    # Verificando se houve colisão entre o jogador e os coletáveis
+    coletado = pygame.sprite.spritecollide(jogador, coletaveis, False, pygame.sprite.collide_mask)
+
+    # Caso tenha havido coleta, aumenta o número de pontos do jogador e redefine a posição do coletável
+    if coletado:
+        # Redefinindo a posição dos coletáveis
+        for coletavel in coletado:
+            coletavel.update()
+
+        # Aumentando o número de pontos do jogador
+        jogador.pontos += 1
+
+
+def jogador_colide_inimigo(jogador, inimigos):
+    """
+    Recebe um objeto da classe Jogador e um grupo de Inimigos
+    e verifica se o jogador colidiu com algum dos inimigos,
+    caso tenha colidido, o número de vidas do jogador é diminuido.
+    """
+
+    bate = pygame.sprite.spritecollide(jogador, inimigos, True, pygame.sprite.collide_mask)
+
+    if bate:
+        jogador.vida -= 1
+        inimigo = Inimigo()
+        inimigos.add(inimigo)
+
+
 def jogador_em_plataforma(jogador, plataformas):
     """
     Recebe um objeto da classe Jogador e um grupo de Plataformas
@@ -325,26 +354,3 @@ def jogador_em_plataforma(jogador, plataformas):
             # Se o jogador está caindo (velocidade_y < 0) e colide com uma plataforma, ele bate nela e para de subir
             jogador.rect.top = plataforma.rect.bottom
             jogador.velocidade_y = 0
-
-
-def reiniciar_jogo(jogador, inimigos, plataformas, frutas):
-    """
-    Função que reinicia o jogo reiniciando os seus componentes
-
-    Args:
-        jogador : Objeto da classe Jogador
-        inimigos : Grupo com objetos da classe Inimigo
-        plataformas : Grupo com objetos da classe Plataforma
-        frutas : Grupo com objetos da classe Frutas
-    """
-
-    jogador.reiniciar()
-
-    for inimigo in inimigos:
-        inimigo.reiniciar_posicao()
-
-    for plataforma in plataformas:
-        plataforma.reiniciar()
-
-    for fruta in frutas:
-        fruta.reiniciar()

@@ -3,7 +3,7 @@ import assets
 # PROPRIEDADES DA TELA
 ALTURA = 640
 LARGURA = 640
-TITULO = 'JOGO EM DESENVOLVIMENTO'
+TITULO = 'JOGO A2'
 
 FPS = 30
 
@@ -14,18 +14,13 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 
-# PROPRIEDADES DA TELA
-INITIAL_POS = [LARGURA//2, ALTURA - assets.jogador.get_width()//2]
-VIDA = 3
-
+# MOVIMENTAÇÃO
 MOVIMENTO = 10
 PULO = 20
 
 # FONTE
-FONTE = 'arial'
+FONTE = 'Roboto'
 
-# TAMANHO SPRITES
-tam_fundo = 640
-Tam_jogador = 64
-Tam_inimigo = 32
-tam_fruta = 64
+# PROPRIEDADES DO JOGADOR
+INITIAL_POS = [LARGURA//2, ALTURA - 32]
+VIDA = 3
